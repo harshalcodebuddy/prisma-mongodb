@@ -1,0 +1,41 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Author {
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  name    String
+  books   Book[]
+}
+
+model Genre {
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  name    String
+  bookGenres BookGenre[]
+}
+
+model Book {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  title    String
+  authorId String   @db.ObjectId
+  author   Author   @relation(fields: [authorId], references: [id])
+  bookGenres BookGenre[]
+}
+
+model BookGenre {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  bookId   String   @db.ObjectId
+  genreId  String   @db.ObjectId
+  book     Book     @relation(fields: [bookId], references: [id])
+  genre    Genre    @relation(fields: [genreId], references: [id])
+
+  @@index([bookId, genreId])
+  // @@index([bookId, genreId], unique: true)
+}
